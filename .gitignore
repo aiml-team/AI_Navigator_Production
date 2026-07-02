@@ -2,7 +2,7 @@
 .env
 .env.*
 .env/
-MYENV_AITOOLS/
+MYENVPROD/
 
 # Python
 __pycache__/
@@ -23,6 +23,12 @@ orchestrator.db
 
 # Vector DB
 chroma_db/
+
+# Data files (Excel scenarios / roles — treat as data, not source)
+*.xlsx
+
+# Backups
+*.backup
 
 # IDE
 .vscode/
