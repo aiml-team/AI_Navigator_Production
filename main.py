@@ -95,19 +95,18 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="Enterprise AI Orchestrator v2", lifespan=lifespan)
 
 # ── SessionMiddleware ──────────────────────────────────────────
-# OKTA SSO DISABLED — the session cookie was previously populated by
-# /saml/acs after a successful Okta assertion. With Okta commented out
-# the cookie is currently unused, but we keep the middleware in place
-# so request.session remains available if Okta is restored later or any
-# other server-side feature wants to store per-request state.
+# OKTA SSO ENABLED — the session cookie is populated by /saml/acs
+# after a successful Okta assertion (see routes/saml_routes.py).
+# The cookie stores the authenticated user dict (email, role,
+# permissions) which /api/auth/me returns to the frontend.
 # ----------------------------------------------------------------
 app.add_middleware(
     SessionMiddleware,
     secret_key=os.getenv("SESSION_SECRET_KEY", "change-me-in-production"),
     session_cookie="navigator_session",
     max_age=28800,           # 8 hours
-    same_site="lax",         # was required so Okta's POST to /saml/acs carried the cookie back
-    https_only=False,        # set True in production behind HTTPS only
+    same_site="lax",         # required so Okta's POST to /saml/acs carries the cookie back
+    https_only=True,         # Azure App Service terminates TLS — cookie must be HTTPS-only
 )
 
 app.add_middleware(
