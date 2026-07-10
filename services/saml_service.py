@@ -47,6 +47,17 @@ def get_saml_settings() -> dict:
     return {
         "strict": True,
         "debug": False,
+        # ── Security settings ──────────────────────────────────────────
+        # wantAttributeStatement=False: allow SAML responses that carry only
+        # the NameID (email) and no <AttributeStatement> block. Okta's prod
+        # app currently does not send attribute statements — the user email
+        # arrives as NameID, which is all we need. Without this flag
+        # python3-saml rejects the response with:
+        #     "There is no AttributeStatement on the Response"
+        # Other checks (signature, audience, destination, timing) remain on.
+        "security": {
+            "wantAttributeStatement": False,
+        },
         "sp": {
             "entityId": f"{base_url}/saml/metadata",
             "assertionConsumerService": {
