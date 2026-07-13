@@ -29,6 +29,10 @@ chroma_db/
 
 # Backups
 *.backup
+.ui_backup_pre_updated_changes/
+
+# Temporary staging folders (never commit)
+UPDATED CHANGES/
 
 # IDE
 .vscode/
