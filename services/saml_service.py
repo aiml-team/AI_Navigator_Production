@@ -12,25 +12,62 @@ import os
 from pathlib import Path
 
 
-def _read_cert(path: str) -> str:
-    text = Path(path).read_text()
+def _strip_cert(text: str) -> str:
     return (
         text.replace("-----BEGIN CERTIFICATE-----", "")
             .replace("-----END CERTIFICATE-----", "")
+            .replace("\r", "")
             .replace("\n", "")
             .strip()
     )
 
 
-def _read_key(path: str) -> str:
-    text = Path(path).read_text()
+def _strip_key(text: str) -> str:
     return (
         text.replace("-----BEGIN PRIVATE KEY-----", "")
             .replace("-----END PRIVATE KEY-----", "")
             .replace("-----BEGIN RSA PRIVATE KEY-----", "")
             .replace("-----END RSA PRIVATE KEY-----", "")
+            .replace("\r", "")
             .replace("\n", "")
             .strip()
+    )
+
+
+def _read_cert(path: str) -> str:
+    return _strip_cert(Path(path).read_text())
+
+
+def _read_key(path: str) -> str:
+    return _strip_key(Path(path).read_text())
+
+
+def _load_pem(env_var: str, file_path: str, is_key: bool) -> str:
+    """
+    Load a PEM-formatted cert or key.
+
+    Priority:
+      1) Environment variable `env_var` — used in Azure App Service, where
+         the private key is stored in App Settings so it never has to be
+         committed to git. The value can either include the -----BEGIN/END-----
+         armor or be the base64 body only; both are normalized to the
+         armor-stripped form python3-saml expects.
+      2) File at `file_path` on disk — used for local development so the
+         existing saml/ folder keeps working with no changes.
+
+    Raises FileNotFoundError with a clearer message when neither source
+    is available (previously we got a bare Path().read_text() error).
+    """
+    raw = os.getenv(env_var)
+    if raw:
+        return _strip_key(raw) if is_key else _strip_cert(raw)
+
+    p = Path(file_path)
+    if p.exists():
+        return _read_key(file_path) if is_key else _read_cert(file_path)
+
+    raise FileNotFoundError(
+        f"SAML material missing: set env var {env_var} or provide {file_path}"
     )
 
 
@@ -40,9 +77,11 @@ def get_saml_settings() -> dict:
         "https://ai-navigator-ashpbzhbcmgeerbt.northeurope-01.azurewebsites.net"
     ).rstrip("/")
 
-    sp_cert = _read_cert("saml/sp.crt")
-    sp_key  = _read_key("saml/sp.key")
-    idp_cert = _read_cert("saml/idp.crt")
+    # SP cert / key and IdP cert can come from env vars (Azure App Settings)
+    # or from local files in saml/. See _load_pem() docstring above.
+    sp_cert  = _load_pem("SAML_SP_CERT", "saml/sp.crt", is_key=False)
+    sp_key   = _load_pem("SAML_SP_KEY",  "saml/sp.key", is_key=True)
+    idp_cert = _load_pem("SAML_IDP_CERT", "saml/idp.crt", is_key=False)
 
     return {
         "strict": True,
