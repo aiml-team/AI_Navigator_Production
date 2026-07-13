@@ -551,20 +551,21 @@
       ? `<button type="button" class="sl-more-link">More</button>`
       : '';
 
-    // Beta "is_tested" chip.
-    //   • Untested (is_tested !== 1): everyone sees an "Untested" chip.
-    //     Admins can click it to flip the scenario to Tested.
-    //   • Tested (is_tested === 1): regular users see nothing; admins see a
-    //     small "Tested" chip they can click to flip it back to Untested.
-    // The click affordance (`data-action="toggle-tested"`) is only wired up
-    // for admins; non-admins get a static informational chip.
+    // Beta "is_tested" chip — HIDDEN in the UI (per product request).
+    // The is_tested data, the /api/admin/scenarios/{id}/tested endpoint,
+    // and the toggle handler (see _bindCardActions below) all remain in
+    // place so this can be re-enabled with a single-line change:
+    //   set `const SHOW_TESTED_CHIP = true;` below.
+    const SHOW_TESTED_CHIP = false;
     const isTested = Number(s.is_tested) === 1;
     const admin    = _isAdmin();
     let betaChipHtml = '';
-    if (!isTested) {
-      betaChipHtml = `<span class="sl-beta-chip sl-untested${admin ? ' sl-beta-admin' : ''}"${admin ? ' data-action="toggle-tested" title="Click to mark as Tested"' : ' title="This scenario is still being tested"'}>Untested</span>`;
-    } else if (admin) {
-      betaChipHtml = `<span class="sl-beta-chip sl-tested sl-beta-admin" data-action="toggle-tested" title="Click to mark as Untested">Tested</span>`;
+    if (SHOW_TESTED_CHIP) {
+      if (!isTested) {
+        betaChipHtml = `<span class="sl-beta-chip sl-untested${admin ? ' sl-beta-admin' : ''}"${admin ? ' data-action="toggle-tested" title="Click to mark as Tested"' : ' title="This scenario is still being tested"'}>Untested</span>`;
+      } else if (admin) {
+        betaChipHtml = `<span class="sl-beta-chip sl-tested sl-beta-admin" data-action="toggle-tested" title="Click to mark as Untested">Tested</span>`;
+      }
     }
 
     return `
