@@ -1,0 +1,22 @@
+{
+  "database": "AI-Navigator",
+  "captured_at_utc": "2026-07-13T15:46:17.854953+00:00",
+  "total_rows": 916,
+  "table_counts": {
+    "dbo.admin_users": 0,
+    "dbo.audit_log": 382,
+    "dbo.feedback": 62,
+    "dbo.NavigatorAdmins": 4,
+    "dbo.NavigatorUsers": 142,
+    "dbo.prompt_versions": 1,
+    "dbo.registered_tools": 22,
+    "dbo.scenario_suggestions": 16,
+    "dbo.scenarios": 163,
+    "dbo.technical_feedbacks": 3,
+    "dbo.tool_change_log": 0,
+    "dbo.user_saved_scenarios": 6,
+    "dbo.UserDefaultRole": 5,
+    "dbo.users": 0,
+    "dbo.UserToolAccess": 110
+  }
+}
