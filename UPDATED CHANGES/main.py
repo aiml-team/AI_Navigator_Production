@@ -95,10 +95,11 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="Enterprise AI Orchestrator v2", lifespan=lifespan)
 
 # ── SessionMiddleware ──────────────────────────────────────────
-# OKTA SSO ENABLED — /saml/acs populates request.session["navigator_user"]
-# after a successful Okta assertion; /api/auth/me reads it back, and
-# /saml/logout clears it. same_site="lax" is required so the browser
-# carries this cookie on the POST from Okta back to /saml/acs.
+# OKTA SSO DISABLED — the session cookie was previously populated by
+# /saml/acs after a successful Okta assertion. With Okta commented out
+# the cookie is currently unused, but we keep the middleware in place
+# so request.session remains available if Okta is restored later or any
+# other server-side feature wants to store per-request state.
 # ----------------------------------------------------------------
 app.add_middleware(
     SessionMiddleware,

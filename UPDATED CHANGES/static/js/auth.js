@@ -3,15 +3,14 @@
    ─ Authentication for AI Navigator.
 
    ┌─────────────────────────────────────────────────────────────┐
-   │ OKTA SSO ENABLED — SAML flow is the primary login path.     │
+   │ OKTA SSO DISABLED — local email login is in use.            │
    │ Flow:                                                       │
-   │   user clicks "Sign in with Okta" → /saml/login →           │
-   │   Okta → POST /saml/acs → session cookie set →              │
-   │   redirect to /?sso=1 → JS calls /api/auth/me → app shell.  │
-   │ Logout: hits /saml/logout to clear the server session.      │
+   │   user submits email → POST /api/auth/identify →            │
+   │   role + permissions returned → app shell renders.          │
+   │ Logout: clears local sessionStorage only.                   │
    │                                                             │
-   │ The local email-login path (LOCAL LOGIN LEGACY) is kept     │
-   │ below in comments as a fallback — uncomment to restore.     │
+   │ The original Okta flow is preserved below in comments       │
+   │ (see "OKTA SSO LEGACY"). Uncomment to restore.              │
    └─────────────────────────────────────────────────────────────┘
 
    BOTH admin and user see:
@@ -235,25 +234,29 @@ ADMIN_ONLY.forEach(sel => {
     document.getElementById('hdrDropdown')?.classList.remove('open');
   }
 
-  /* ── logout → hit Okta SLO endpoint ───────────────────────── */
+  /* ── logout → clear local session ─────────────────────────── */
   function logout() {
     clearSession();
-    // OKTA SSO — clears server session and returns to /.
-    window.location.href = '/saml/logout';
-    // LOCAL LOGIN LEGACY (disabled):
-    //   window.location.href = '/';
+    // OKTA SSO LEGACY (disabled):
+    //   window.location.href = '/saml/logout';
+    // Local login: just reload to show the login screen.
+    window.location.href = '/';
   }
 
-  /* ── Fetch user from server session (after /saml/acs) ─────── */
-  async function fetchServerSession() {
-    try {
-      const res = await fetch('/api/auth/me');
-      if (!res.ok) return null;
-      return await res.json();
-    } catch {
-      return null;
-    }
-  }
+  /* ── OKTA SSO LEGACY — fetch user from server session ─────────
+     Was called after /saml/acs redirected to /?sso=1. The /api/auth/me
+     endpoint lived in routes/saml_routes.py which is now disabled.
+     Kept here (commented) so the original flow can be restored verbatim.
+  ───────────────────────────────────────────────────────────────── */
+  // async function fetchServerSession() {
+  //   try {
+  //     const res = await fetch('/api/auth/me');
+  //     if (!res.ok) return null;
+  //     return await res.json();
+  //   } catch {
+  //     return null;
+  //   }
+  // }
 
   /* ── LOCAL LOGIN — POST /api/auth/identify ────────────────── */
   async function localLogin(email) {
@@ -301,44 +304,41 @@ ADMIN_ONLY.forEach(sel => {
       document.getElementById('hdrDropdown')?.classList.remove('open');
     });
 
-    /* ── LOCAL LOGIN LEGACY (disabled) — form submit binding ───
-       Preserved so restoring the local email-login form + this
-       block re-enables /api/auth/identify without further changes.
-    ─────────────────────────────────────────────────────────────── */
-    // const loginForm = document.getElementById('localLoginForm');
-    // if (loginForm) {
-    //   loginForm.addEventListener('submit', (e) => {
-    //     e.preventDefault();
-    //     const emailInput = document.getElementById('localLoginEmail');
-    //     localLogin(emailInput ? emailInput.value : '');
-    //   });
-    // }
-
-    /* ── OKTA SSO boot path ────────────────────────────────────
-       After /saml/acs redirects to /?sso=1, pull the authenticated
-       user from the server session cookie set by the SAML ACS
-       endpoint, then strip the query param and render the app.
-    ─────────────────────────────────────────────────────────────── */
-    const params = new URLSearchParams(window.location.search);
-    const justLoggedIn = params.get('sso') === '1';
-
-    if (justLoggedIn) {
-      const serverUser = await fetchServerSession();
-      if (serverUser && serverUser.email) {
-        saveSession(serverUser);
-        history.replaceState(null, '', '/');
-        showApp(serverUser);
-        if (typeof initRecentRuns === 'function') initRecentRuns();
-        if (typeof loadHistory === 'function') loadHistory();
-        window._personalization?.loadPrefs?.();
-        return;
-      }
+    /* Local login form submit */
+    const loginForm = document.getElementById('localLoginForm');
+    if (loginForm) {
+      loginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const emailInput = document.getElementById('localLoginEmail');
+        localLogin(emailInput ? emailInput.value : '');
+      });
     }
 
+    /* ── OKTA SSO LEGACY boot path (disabled) ──────────────────
+       After /saml/acs redirected to /?sso=1, this block called the
+       server to pull the authenticated user from the session cookie
+       set by the SAML ACS endpoint. Now that SAML routes are
+       commented out, the redirect target no longer exists.
+    ─────────────────────────────────────────────────────────────── */
+    // const params = new URLSearchParams(window.location.search);
+    // const justLoggedIn = params.get('sso') === '1';
+    //
+    // if (justLoggedIn) {
+    //   const serverUser = await fetchServerSession();
+    //   if (serverUser && serverUser.email) {
+    //     saveSession(serverUser);
+    //     history.replaceState(null, '', '/');
+    //     showApp(serverUser);
+    //     if (typeof initRecentRuns === 'function') initRecentRuns();
+    //     if (typeof loadHistory === 'function') loadHistory();
+    //     window._personalization?.loadPrefs?.();
+    //     return;
+    //   }
+    // }
+
     /* Tab-refresh: restore from sessionStorage if present.
-       The server session cookie is the source of truth after Okta
-       SSO, but we cache the user in sessionStorage for a snappy
-       reload experience within the same tab. */
+       With Okta disabled there is no server session to re-validate
+       against — we trust sessionStorage until the tab is closed. */
     const cached = loadSession();
     if (cached && cached.email && cached.role) {
       showApp(cached);

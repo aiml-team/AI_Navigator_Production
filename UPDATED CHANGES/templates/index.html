@@ -469,7 +469,7 @@
 
           <div id="authError" style="display:none;padding:12px 14px;border-radius:6px;background:var(--danger-pale);border:1px solid var(--danger);font-size:14px;color:var(--danger);margin-bottom:4px;"></div>
 
-          <!-- ══ OKTA SSO SIGN-IN — ENABLED ══════════════════════════════ -->
+          <!-- ══ OKTA SSO SIGN-IN — DISABLED ═════════════════════════════
           <a id="oktaLoginBtn" href="/saml/login"
              style="display:flex;align-items:center;justify-content:center;gap:12px;width:100%;padding:13px 16px;border-radius:6px;border:0;cursor:pointer;background:var(--primary);color:#fff;font-size:18px;font-weight:700;letter-spacing:0.01em;text-decoration:none;transition:background 0.15s;box-sizing:border-box;"
              onmouseover="this.style.background='var(--primary-dark)';"
@@ -477,11 +477,13 @@
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
             Sign in with Okta
           </a>
+          ═════════════════════════════════════════════════════════════ -->
 
-          <!-- ══ LOCAL EMAIL SIGN-IN — DISABLED (Okta re-enabled) ════════
-               Preserved for easy restore. Uncomment this <form> block to
-               re-expose the local /api/auth/identify email login.
-          ═════════════════════════════════════════════════════════════
+          <!-- ══ LOCAL EMAIL SIGN-IN (Okta-replacement) ══════════════════
+               Calls /api/auth/identify with the entered email. The endpoint
+               canonicalizes the email and resolves admin vs user from the
+               DB — same logic Okta was using server-side after assertion.
+          ═════════════════════════════════════════════════════════════ -->
           <form id="localLoginForm" autocomplete="off"
                 style="display:flex;flex-direction:column;gap:10px;">
             <label for="localLoginEmail"
@@ -501,7 +503,6 @@
               Sign In
             </button>
           </form>
-          ═════════════════════════════════════════════════════════════ -->
 
           <a href="https://itellicloud.sharepoint.com/:b:/r/sites/US-saleshub/Shared%20Documents/06-%20Digital%20Innovations%20Internal%20Documents/12-%20Artificial%20Intelligence%20and%20Machine%20Learning%20Projects/2026%20-%20AI%20Navigator/AI%20Navigator%20v1.0.0/AI_Navigator_User_Manual.pdf?csf=1&web=1&e=QBY0GJ"
              target="_blank" rel="noopener"

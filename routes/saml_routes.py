@@ -9,10 +9,14 @@ Okta SAML 2.0 SSO endpoints:
   GET  /api/auth/me   → returns the current session user (used by JS)
 """
 
+# ──────────────────────────────────────────────────────────────────────────
+#  OKTA SSO ENABLED — router active and registered in routes/__init__.py.
+# ──────────────────────────────────────────────────────────────────────────
+
 import os
 from pathlib import Path
 
-from fastapi import APIRouter, Request, HTTPException
+from fastapi import APIRouter, Request
 from fastapi.responses import RedirectResponse, Response, HTMLResponse
 from onelogin.saml2.auth import OneLogin_Saml2_Auth
 
@@ -138,6 +142,7 @@ async def saml_me(request: Request):
     """
     user = request.session.get("navigator_user")
     if not user:
+        from fastapi import HTTPException
         raise HTTPException(401, "No active session")
     return user
 
