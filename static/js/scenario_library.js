@@ -551,12 +551,14 @@
       ? `<button type="button" class="sl-more-link">More</button>`
       : '';
 
-    // Beta "is_tested" chip — HIDDEN in the UI (per product request).
-    // The is_tested data, the /api/admin/scenarios/{id}/tested endpoint,
-    // and the toggle handler (see _bindCardActions below) all remain in
-    // place so this can be re-enabled with a single-line change:
-    //   set `const SHOW_TESTED_CHIP = true;` below.
-    const SHOW_TESTED_CHIP = false;
+    // Beta "is_tested" chip — visible in the UI.
+    //   • Untested (is_tested !== 1): everyone sees an "Untested" chip.
+    //     Admins can click it to flip the scenario to Tested.
+    //   • Tested (is_tested === 1): regular users see nothing; admins see a
+    //     small "Tested" chip they can click to flip it back to Untested.
+    // Backend endpoint: POST /api/admin/scenarios/{id}/tested
+    // Toggle handler is wired below in _bindCardActions().
+    const SHOW_TESTED_CHIP = true;
     const isTested = Number(s.is_tested) === 1;
     const admin    = _isAdmin();
     let betaChipHtml = '';
