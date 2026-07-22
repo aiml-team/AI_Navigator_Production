@@ -235,13 +235,13 @@ ADMIN_ONLY.forEach(sel => {
     document.getElementById('hdrDropdown')?.classList.remove('open');
   }
 
-  /* ── logout → clear local session and return to / ─────────── */
+  /* ── logout → hit /saml/logout to clear server session ────── */
   function logout() {
     clearSession();
-    // LOCAL LOGIN — no server SLO round-trip needed.
-    window.location.href = '/';
-    // OKTA SSO (disabled):
-    //   window.location.href = '/saml/logout';
+    // OKTA SSO — server does Single Log-Out then redirects to /
+    window.location.href = '/saml/logout';
+    // LOCAL LOGIN (disabled):
+    //   window.location.href = '/';
   }
 
   /* ── Fetch user from server session (after /saml/acs) ─────── */
@@ -301,7 +301,10 @@ ADMIN_ONLY.forEach(sel => {
       document.getElementById('hdrDropdown')?.classList.remove('open');
     });
 
-    /* ── LOCAL LOGIN — form submit binding (ENABLED) ──────────── */
+    /* ── LOCAL LOGIN — form submit binding (DISABLED) ────────────
+       Preserved for easy restore. Uncomment to re-enable local
+       email sign-in alongside re-adding the <form> in index.html.
+    ───────────────────────────────────────────────────────────────
     const loginForm = document.getElementById('localLoginForm');
     if (loginForm) {
       loginForm.addEventListener('submit', (e) => {
@@ -310,6 +313,7 @@ ADMIN_ONLY.forEach(sel => {
         localLogin(emailInput ? emailInput.value : '');
       });
     }
+    ─────────────────────────────────────────────────────────────── */
 
     /* ── OKTA SSO boot path ────────────────────────────────────
        After /saml/acs redirects to /?sso=1, pull the authenticated
