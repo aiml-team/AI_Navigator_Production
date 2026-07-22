@@ -235,13 +235,13 @@ ADMIN_ONLY.forEach(sel => {
     document.getElementById('hdrDropdown')?.classList.remove('open');
   }
 
-  /* ── logout → hit Okta SLO endpoint ───────────────────────── */
+  /* ── logout → clear local session and return to / ─────────── */
   function logout() {
     clearSession();
-    // OKTA SSO — clears server session and returns to /.
-    window.location.href = '/saml/logout';
-    // LOCAL LOGIN LEGACY (disabled):
-    //   window.location.href = '/';
+    // LOCAL LOGIN — no server SLO round-trip needed.
+    window.location.href = '/';
+    // OKTA SSO (disabled):
+    //   window.location.href = '/saml/logout';
   }
 
   /* ── Fetch user from server session (after /saml/acs) ─────── */
@@ -301,18 +301,15 @@ ADMIN_ONLY.forEach(sel => {
       document.getElementById('hdrDropdown')?.classList.remove('open');
     });
 
-    /* ── LOCAL LOGIN LEGACY (disabled) — form submit binding ───
-       Preserved so restoring the local email-login form + this
-       block re-enables /api/auth/identify without further changes.
-    ─────────────────────────────────────────────────────────────── */
-    // const loginForm = document.getElementById('localLoginForm');
-    // if (loginForm) {
-    //   loginForm.addEventListener('submit', (e) => {
-    //     e.preventDefault();
-    //     const emailInput = document.getElementById('localLoginEmail');
-    //     localLogin(emailInput ? emailInput.value : '');
-    //   });
-    // }
+    /* ── LOCAL LOGIN — form submit binding (ENABLED) ──────────── */
+    const loginForm = document.getElementById('localLoginForm');
+    if (loginForm) {
+      loginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const emailInput = document.getElementById('localLoginEmail');
+        localLogin(emailInput ? emailInput.value : '');
+      });
+    }
 
     /* ── OKTA SSO boot path ────────────────────────────────────
        After /saml/acs redirects to /?sso=1, pull the authenticated

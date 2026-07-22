@@ -429,6 +429,460 @@
       border-color: #000000 !important;
     }
   </style>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       MOBILE RESPONSIVE OVERRIDES
+       ------------------------------------------------------------
+       Targets inline-styled elements and edge cases the compiled
+       Tailwind build did not cover. NO functional changes, NO
+       element re-ordering — CSS-only sizing/padding/wrap tweaks.
+       Breakpoints: ≤900px (tablet/mobile), ≤640px (phone), ≤480px (small phone).
+       Also mirrored into tailwind/input.css for future rebuilds.
+  ══════════════════════════════════════════════════════════════════════ -->
+  <style id="mobile-responsive-overrides">
+
+    /* ── Universal helpers ─────────────────────────────────── */
+    @media (max-width: 900px) {
+      /* Prevent horizontal scroll from any stray oversized element */
+      html, body { max-width: 100%; overflow-x: hidden; }
+      /* Any element that hard-codes a min-width in inline style
+         gets a safe cap on narrow screens. */
+      [style*="min-width:260px"],
+      [style*="min-width: 260px"] { min-width: 0 !important; width: 100% !important; }
+      [style*="min-width:240px"],
+      [style*="min-width: 240px"] { min-width: 0 !important; }
+      [style*="min-width:220px"],
+      [style*="min-width: 220px"] { min-width: 0 !important; }
+      [style*="min-width:160px"],
+      [style*="min-width: 160px"] { min-width: 0 !important; }
+      [style*="min-width:110px"],
+      [style*="min-width: 110px"] { min-width: 0 !important; }
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       1. LOGIN / AUTH SCREEN
+       #authScreen uses heavy inline styles that need overriding.
+       ══════════════════════════════════════════════════════════ */
+    @media (max-width: 900px) {
+      /* Hero row: reduce gap and vertical padding */
+      #authScreen > div > div:nth-child(2) {
+        gap: 24px !important;
+        padding: 20px 0 !important;
+      }
+      /* Right sign-in card: unlock the 396px hard basis */
+      #authScreen > div > div:nth-child(2) > div:nth-child(2) {
+        flex: 1 1 100% !important;
+        max-width: 480px !important;
+        width: 100% !important;
+      }
+      /* Left brand column: allow full width */
+      #authScreen > div > div:nth-child(2) > div:nth-child(1) {
+        flex: 1 1 100% !important;
+        max-width: 100% !important;
+        text-align: center;
+      }
+      /* Brand paragraph centered on mobile */
+      #authScreen > div > div:nth-child(2) > div:nth-child(1) p {
+        margin-left: auto !important;
+        margin-right: auto !important;
+      }
+    }
+    @media (max-width: 640px) {
+      /* Root padding tightens */
+      #authScreen > div { padding: 0 16px !important; }
+      /* Shrink the giant 56px title */
+      #authScreen [style*="font-size:56px"],
+      #authScreen [style*="font-size: 56px"] { font-size: 34px !important; line-height: 1.15 !important; }
+      /* Shrink the 24px tagline */
+      #authScreen [style*="font-size:24px"],
+      #authScreen [style*="font-size: 24px"] { font-size: 17px !important; line-height: 1.35 !important; }
+      /* Card padding tighter */
+      #authScreen > div > div:nth-child(2) > div:nth-child(2) > div { padding: 16px !important; }
+      /* Logo row padding */
+      #authScreen > div > div:nth-child(1) { padding: 16px 0 8px 0 !important; }
+      /* Footer smaller */
+      #authScreen > div > div:last-child { padding: 12px 0 !important; }
+    }
+    @media (max-width: 480px) {
+      #authScreen [style*="font-size:56px"],
+      #authScreen [style*="font-size: 56px"] { font-size: 28px !important; }
+      #authScreen [style*="font-size:24px"],
+      #authScreen [style*="font-size: 24px"] { font-size: 15px !important; }
+      #authScreen > div { padding: 0 12px !important; }
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       2. TOP HEADER BAR
+       Reduce padding and hide the NTT secondary logo + divider
+       on very small screens so brand + hamburger + profile fit.
+       ══════════════════════════════════════════════════════════ */
+    @media (max-width: 640px) {
+      header.fixed > div { padding-left: 12px !important; padding-right: 12px !important; gap: 8px !important; }
+      /* Right cluster: keep profile menu, hide secondary NTT logo + divider to save room */
+      header.fixed > div > div:last-child > img,
+      header.fixed > div > div:last-child > div.h-5.w-px { display: none !important; }
+      /* Brand wordmark shrinks */
+      header.fixed .text-\[17px\] { font-size: 14px !important; }
+    }
+    @media (max-width: 480px) {
+      header.fixed > div { padding-left: 8px !important; padding-right: 8px !important; }
+      header.fixed .text-\[17px\] { font-size: 13px !important; }
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       3. TAB NAV BAR (fixed below header)
+       Reduce horizontal padding + text size so 3 tabs fit.
+       ══════════════════════════════════════════════════════════ */
+    @media (max-width: 640px) {
+      nav.fixed.top-\[60px\] > div { padding-left: 8px !important; padding-right: 8px !important; }
+      nav.fixed.top-\[60px\] .nav-tab { font-size: 12px !important; padding-left: 6px !important; padding-right: 6px !important; }
+      nav.fixed.top-\[60px\] .nav-tab svg { width: 14px !important; height: 14px !important; }
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       4. ADMIN LEFT RAIL — hide on mobile
+       Rail uses inline `top:112px;width:220px`. Neutralise and
+       reset main content margin on small screens.
+       ══════════════════════════════════════════════════════════ */
+    @media (max-width: 900px) {
+      #adminRail { display: none !important; }
+      body.has-admin-rail #mainContent,
+      body.has-admin-rail .main { margin-left: 0 !important; }
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       5. HEADER DROPDOWN (user profile menu)
+       Cap width so it never overflows the viewport.
+       ══════════════════════════════════════════════════════════ */
+    @media (max-width: 640px) {
+      #hdrDropdown {
+        min-width: 0 !important;
+        width: calc(100vw - 24px) !important;
+        max-width: 320px !important;
+        right: 8px !important;
+      }
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       6. HOME PAGE — chat + steps two-column → single column
+       Compiled CSS already handles most of this; add safety nets.
+       ══════════════════════════════════════════════════════════ */
+    @media (max-width: 900px) {
+      .home-outer { flex-direction: column !important; height: auto !important; overflow-y: auto !important; }
+      .home-drag-handle { display: none !important; }
+      .chat-panel, .home-right { flex: 1 1 auto !important; width: 100% !important; max-width: 100% !important; min-width: 0 !important; }
+      .chat-panel-inner { padding: 12px !important; }
+      .chat-messages { max-height: 55vh !important; }
+    }
+    @media (max-width: 640px) {
+      .chat-input-row { flex-wrap: wrap !important; gap: 6px !important; }
+      .chat-actions { flex-wrap: wrap !important; gap: 6px !important; }
+      .chat-action-btn { font-size: 13px !important; padding: 8px 10px !important; flex: 1 1 auto !important; }
+      .chat-send-btn { flex-shrink: 0 !important; }
+      .chat-input { font-size: 14px !important; }
+      .chat-panel-header { flex-wrap: wrap !important; gap: 8px !important; }
+      .chat-panel-title { font-size: 15px !important; }
+    }
+
+    /* ── Step panels + result output ────────────────────────── */
+    @media (max-width: 640px) {
+      .step-panel { padding: 12px !important; }
+      /* Prompt output toolbar buttons wrap and fill row */
+      #promptToolbar { gap: 6px !important; }
+      #promptToolbar .btn { flex: 1 1 auto !important; font-size: 12px !important; padding: 6px 8px !important; }
+      /* Prompt code block: allow horizontal scroll rather than overflow */
+      #resultPrompt { font-size: 12px !important; padding: 10px !important; overflow-x: auto !important; }
+      #promptEditArea { min-height: 220px !important; font-size: 13px !important; padding: 10px !important; }
+      /* Output tabs shrink */
+      .output-tabs { flex-wrap: wrap !important; gap: 4px !important; }
+      .output-tab { font-size: 12px !important; padding: 6px 10px !important; }
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       7. HISTORY / ACTIVITY PAGE
+       Fix action-button overlap: stack the whole .history-item
+       vertically so [View | Feedback | Regenerate] land under
+       the meta row instead of getting squeezed beside it.
+       ══════════════════════════════════════════════════════════ */
+    @media (max-width: 640px) {
+      #page-history .page-scroll-body { padding: 12px !important; }
+      #page-history .page-header { flex-direction: column !important; align-items: flex-start !important; gap: 12px !important; }
+      #page-history .page-header > div:last-child { width: 100%; flex-wrap: wrap !important; }
+      .page-title { font-size: 18px !important; }
+      .page-subtitle { font-size: 13px !important; }
+      #historyPagination { gap: 6px !important; padding: 10px 0 !important; }
+      #historyPageInfo { min-width: 0 !important; font-size: 12px !important; flex: 1 1 100% !important; order: -1; }
+
+      /* Stack the whole history card vertically so nothing overlaps. */
+      .history-item {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 10px !important;
+        padding: 12px !important;
+      }
+      .history-item-icon { align-self: flex-start !important; }
+      .history-item-body { width: 100% !important; }
+      /* Allow the raw-input text to wrap on mobile instead of ellipsizing */
+      .history-item-input {
+        white-space: normal !important;
+        overflow: visible !important;
+        text-overflow: clip !important;
+        word-break: break-word;
+      }
+      /* Actions row: full width, buttons wrap into 2-col if room */
+      .history-item-actions {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: wrap !important;
+        gap: 6px !important;
+        width: 100% !important;
+        margin-top: 4px;
+      }
+      .history-item-actions .btn {
+        flex: 1 1 calc(50% - 6px) !important;
+        width: auto !important;
+        min-width: 0 !important;
+        font-size: 12px !important;
+        padding: 8px 8px !important;
+        justify-content: center !important;
+      }
+      /* The "Regenerate" (primary) button spans the full row for emphasis */
+      .history-item-actions .btn.btn-primary {
+        flex: 1 1 100% !important;
+      }
+    }
+    @media (max-width: 480px) {
+      /* On very small phones stack every button full-width for readability */
+      .history-item-actions .btn { flex: 1 1 100% !important; }
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       8. AI TOOLS PAGE — sidebar hides, mobile select appears
+       ══════════════════════════════════════════════════════════ */
+    @media (max-width: 900px) {
+      .tools-layout { flex-direction: column !important; }
+      .tools-sidebar { display: none !important; }
+      .tools-mobile-select { display: inline-block !important; }
+      .tools-content { width: 100% !important; }
+      .tools-top-bar { padding: 10px 12px !important; }
+      .tools-header { flex-wrap: wrap !important; gap: 10px !important; }
+      .tools-header-actions { flex-wrap: wrap !important; width: 100%; gap: 8px !important; }
+      .tools-toolbar-row { flex-wrap: wrap !important; }
+    }
+    @media (max-width: 640px) {
+      .tools-title { font-size: 17px !important; }
+      .tools-subtitle { font-size: 12px !important; }
+      .tools-search { width: 100% !important; font-size: 13px !important; }
+      .tools-register-btn { font-size: 13px !important; padding: 8px 12px !important; }
+      .tools-grid { grid-template-columns: 1fr !important; gap: 10px !important; }
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       9. SCENARIO LIBRARY — sidebar hides, mobile select appears
+       ══════════════════════════════════════════════════════════ */
+    @media (max-width: 900px) {
+      .sl-layout { flex-direction: column !important; }
+      .sl-sidebar { display: none !important; }
+      .sl-mobile-select { display: inline-block !important; }
+      .sl-content { width: 100% !important; }
+      .sl-top-bar { padding: 10px 12px !important; }
+      .sl-header { flex-wrap: wrap !important; gap: 10px !important; }
+      .sl-header-actions { flex-wrap: wrap !important; width: 100%; gap: 8px !important; }
+      .sl-subtab-bar { flex-wrap: wrap !important; gap: 8px !important; }
+      .sl-subtab-right { flex-wrap: wrap !important; }
+    }
+    @media (max-width: 640px) {
+      .sl-search { width: 100% !important; font-size: 13px !important; }
+      .sl-upload-btn { font-size: 13px !important; padding: 8px 12px !important; }
+      .sl-subtab-btn { font-size: 13px !important; padding: 6px 10px !important; }
+      #slScenarioGrid, .sl-fav-grid { grid-template-columns: 1fr !important; gap: 10px !important; }
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       10. ANALYTICS MODAL (full-screen on mobile)
+       ══════════════════════════════════════════════════════════ */
+    @media (max-width: 900px) {
+      .an-modal, .an-drill-panel {
+        width: 100vw !important; height: 100vh !important;
+        max-width: 100vw !important; max-height: 100vh !important;
+        border-radius: 0 !important; top: 0 !important; left: 0 !important;
+        transform: none !important;
+      }
+      .an-header, .an-drill-header { padding: 10px 12px !important; flex-wrap: wrap !important; gap: 8px !important; }
+      .an-controls { flex-wrap: wrap !important; padding: 10px 12px !important; gap: 8px !important; }
+      .an-period-tabs { flex-wrap: wrap !important; }
+      .an-divider { display: none !important; }
+      .an-body, .an-drill-body { padding: 12px !important; }
+    }
+    @media (max-width: 640px) {
+      .an-header-title { font-size: 15px !important; }
+      .an-header-sub { font-size: 11px !important; }
+      .an-period-tab { font-size: 12px !important; padding: 6px 10px !important; }
+      .an-role-select, .an-date-input { font-size: 13px !important; }
+      #anDateRangeBox { flex-wrap: wrap !important; width: 100%; }
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       11. FEEDBACK DASHBOARD MODAL
+       ══════════════════════════════════════════════════════════ */
+    @media (max-width: 900px) {
+      .fbv-modal {
+        width: 100vw !important; height: 100vh !important;
+        max-width: 100vw !important; max-height: 100vh !important;
+        border-radius: 0 !important; top: 0 !important; left: 0 !important;
+        transform: none !important;
+      }
+      .fbv-header { padding: 10px 12px !important; flex-wrap: wrap !important; gap: 8px !important; }
+      .fbv-controls, .fbv-body { padding: 10px 12px !important; }
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       12. TECH ISSUES PAGE
+       ══════════════════════════════════════════════════════════ */
+    @media (max-width: 640px) {
+      #page-tech-issues .page-scroll-body { padding: 12px !important; }
+      #page-tech-issues .page-header { flex-direction: column !important; align-items: flex-start !important; gap: 10px !important; }
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       13. MODALS (generic) — cap width, tighten padding
+       Applies to every fixed/absolute modal that uses inline max-width.
+       ══════════════════════════════════════════════════════════ */
+    @media (max-width: 640px) {
+      /* Generic modal panels that use inline max-width */
+      [role="dialog"] [style*="max-width:680px"],
+      [role="dialog"] [style*="max-width: 680px"],
+      [role="dialog"] [style*="max-width:660px"],
+      [role="dialog"] [style*="max-width: 660px"],
+      [role="dialog"] [style*="max-width:720px"],
+      [role="dialog"] [style*="max-width: 720px"],
+      [role="dialog"] [style*="max-width:700px"],
+      [role="dialog"] [style*="max-width: 700px"],
+      [role="dialog"] [style*="max-width:640px"],
+      [role="dialog"] [style*="max-width: 640px"],
+      [role="dialog"] [style*="max-width:600px"],
+      [role="dialog"] [style*="max-width: 600px"] {
+        max-width: 94vw !important;
+        width: 94vw !important;
+      }
+      /* Personalization modal */
+      .pz-modal { width: 96vw !important; height: 90vh !important; }
+      .pz-header, .pz-footer { padding: 10px 12px !important; flex-wrap: wrap !important; gap: 8px !important; }
+      .pz-body { padding: 10px 12px !important; }
+      .pz-tools-controls { flex-wrap: wrap !important; }
+      .pz-tools-controls input[type="search"] { width: 100% !important; min-width: 0 !important; }
+      /* Feedback form modal — grid already collapses at 720px */
+      .fb-form-modal { padding: 16px !important; }
+    }
+
+    /* Feedback modal body grid — extend the existing 720px rule to 640px too.
+       Also: on mobile the fixed-height/no-scroll layout clips the submit
+       button and file upload zone, so we allow vertical scrolling inside
+       the modal and lift the compact height caps on the textarea/dropzone. */
+    @media (max-width: 640px) {
+      .fb-form-modal {
+        max-height: 92vh !important;
+        height: auto !important;
+      }
+      .fb-form-body {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch;
+        padding: 14px 16px 16px !important;
+        max-height: calc(92vh - 60px);  /* leave room for the modal header */
+      }
+      .fb-form-body > .fb-field,
+      .fb-form-body > .fb-submit-row { grid-column: 1 / -1 !important; }
+      /* Give the textarea real breathing room (desktop caps it to 48px). */
+      .fb-form-body .fb-field textarea {
+        min-height: 90px !important;
+        max-height: 200px !important;
+        font-size: 14px !important;
+      }
+      /* Dropzone: bigger tap area on mobile. */
+      .fb-form-body .fb-dropzone { padding: 14px 12px !important; }
+      .fb-form-body .fb-dropzone-icon { font-size: 22px !important; margin-bottom: 4px !important; }
+      .fb-form-body .fb-dropzone-text { font-size: 13px !important; }
+      .fb-form-body .fb-dropzone-hint { font-size: 11px !important; margin-top: 4px !important; }
+      /* Submit row: buttons stack full-width so both are always visible. */
+      .fb-form-body .fb-submit-row {
+        flex-direction: column-reverse !important;
+        gap: 8px !important;
+        padding-top: 4px !important;
+        position: sticky;
+        bottom: 0;
+        background: #fff;
+        padding-bottom: 6px;
+      }
+      .fb-form-body .fb-btn-submit,
+      .fb-form-body .fb-btn-cancel {
+        width: 100% !important;
+        min-height: 44px !important;
+        font-size: 14px !important;
+      }
+      /* Prevent pill overflow. */
+      .fb-form-body .fb-issue-pills { flex-wrap: wrap !important; }
+      /* Email input readable size (avoids iOS zoom). */
+      .fb-form-body .fb-field input[type="email"] { font-size: 16px !important; padding: 10px 12px !important; }
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       14. MENU DRAWER
+       - Allow vertical scrolling so ALL admin options are reachable
+         on short viewports (fixes admin items being cut off).
+       - Tighten padding on very small phones.
+       ══════════════════════════════════════════════════════════ */
+    @media (max-width: 900px) {
+      .menu-drawer {
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+        padding-bottom: 32px !important;
+      }
+      /* Slightly tighter link padding so more items fit above the fold. */
+      .menu-drawer .menu-link { padding: 10px 16px !important; }
+      .menu-drawer .drawer-admin-section { padding-bottom: 8px; }
+    }
+    @media (max-width: 480px) {
+      .menu-drawer { width: 84vw !important; max-width: 300px !important; }
+      .menu-drawer .menu-link { font-size: 14px !important; padding: 10px 12px !important; }
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       15. TABLES / ADMIN AUDIT LOG — allow horizontal scroll
+       ══════════════════════════════════════════════════════════ */
+    @media (max-width: 900px) {
+      .as-table-wrap, #asLogTable { overflow-x: auto !important; -webkit-overflow-scrolling: touch; }
+      .as-table-wrap table, #asLogTable table { min-width: 640px; }
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       16. TOUCH TARGETS — ensure buttons meet 40px min on phones
+       ══════════════════════════════════════════════════════════ */
+    @media (max-width: 640px) {
+      .btn, button.btn, .rail-item, .menu-link, .nav-tab {
+        min-height: 40px;
+      }
+      /* Inputs comfortable to tap */
+      input[type="email"], input[type="text"], input[type="search"], input[type="password"], select, textarea {
+        font-size: 16px; /* prevents iOS Safari zoom on focus */
+      }
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       17. GENERIC INLINE-FLEX ROWS — force wrap on phones
+       Toolbars, filter rows, pagination rows that use inline flex.
+       ══════════════════════════════════════════════════════════ */
+    @media (max-width: 640px) {
+      [style*="display:flex"][style*="gap:12px"]:not(.menu-drawer):not(.chat-panel):not(.chat-panel-inner):not(.home-outer),
+      [style*="display: flex"][style*="gap: 12px"]:not(.menu-drawer):not(.chat-panel):not(.chat-panel-inner):not(.home-outer) {
+        flex-wrap: wrap;
+      }
+    }
+
+  </style>
+
 </head>
 <body>
 
@@ -469,7 +923,10 @@
 
           <div id="authError" style="display:none;padding:12px 14px;border-radius:6px;background:var(--danger-pale);border:1px solid var(--danger);font-size:14px;color:var(--danger);margin-bottom:4px;"></div>
 
-          <!-- ══ OKTA SSO SIGN-IN — ENABLED ══════════════════════════════ -->
+          <!-- ══ OKTA SSO SIGN-IN — DISABLED ═════════════════════════════
+               Preserved for easy restore. Uncomment this <a> block to
+               re-expose the "Sign in with Okta" button.
+          ═════════════════════════════════════════════════════════════
           <a id="oktaLoginBtn" href="/saml/login"
              style="display:flex;align-items:center;justify-content:center;gap:12px;width:100%;padding:13px 16px;border-radius:6px;border:0;cursor:pointer;background:var(--primary);color:#fff;font-size:18px;font-weight:700;letter-spacing:0.01em;text-decoration:none;transition:background 0.15s;box-sizing:border-box;"
              onmouseover="this.style.background='var(--primary-dark)';"
@@ -477,11 +934,9 @@
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
             Sign in with Okta
           </a>
+          ═════════════════════════════════════════════════════════════ -->
 
-          <!-- ══ LOCAL EMAIL SIGN-IN — DISABLED (Okta re-enabled) ════════
-               Preserved for easy restore. Uncomment this <form> block to
-               re-expose the local /api/auth/identify email login.
-          ═════════════════════════════════════════════════════════════
+          <!-- ══ LOCAL EMAIL SIGN-IN — ENABLED ═══════════════════════════ -->
           <form id="localLoginForm" autocomplete="off"
                 style="display:flex;flex-direction:column;gap:10px;">
             <label for="localLoginEmail"
@@ -489,6 +944,8 @@
               Work Email
             </label>
             <input type="email" id="localLoginEmail" name="email" required
+                   autocomplete="username"
+                   inputmode="email"
                    placeholder="you@nttdata.com"
                    style="width:100%;padding:11px 14px;border-radius:6px;border:1px solid #cbd5e1;font-size:15px;font-family:inherit;background:#fff;color:var(--text);box-sizing:border-box;outline:none;transition:border-color 0.15s,box-shadow 0.15s;"
                    onfocus="this.style.borderColor='var(--primary)';this.style.boxShadow='0 0 0 3px rgba(37,99,235,0.15)';"
@@ -501,7 +958,6 @@
               Sign In
             </button>
           </form>
-          ═════════════════════════════════════════════════════════════ -->
 
           <a href="https://ainavigatorfeedback.blob.core.windows.net/ai-navigator-docs/AI_Navigator_User_Manual_v1.pptx?sp=r&st=2026-07-16T06:12:45Z&se=2027-12-31T14:27:45Z&sv=2026-02-06&sr=b&sig=JMPMZFz9%2FhqEzzP3tRSb7F%2FqR%2B2SMeSE1RGo7HH6%2BpI%3D"
              target="_blank" rel="noopener"
@@ -568,50 +1024,10 @@
     </svg>
     AI Tools
   </button>
-  <button class="menu-link bg-transparent border-0 text-left w-full text-[var(--text)] text-[0.95rem] font-semibold flex items-center gap-2.5 px-4 py-3 rounded-lg cursor-pointer transition-all duration-200 hover:bg-[rgba(37,99,235,0.08)] hover:text-[var(--primary)] hover:translate-x-1"
-          data-page="history">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;opacity:0.75;">
-      <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-    </svg>
-    My activity
-  </button>
-
-  <div class="my-3 border-t border-slate-200"></div>
-
-  <!-- ─── Help & actions ─── -->
-  <div class="text-[10px] font-bold uppercase tracking-[0.08em] text-slate-400 px-4 mb-2">Help</div>
-  <a href="https://ainavigatorfeedback.blob.core.windows.net/ai-navigator-docs/AI_Navigator_Release_Notes_v1.docx?sp=r&st=2026-07-16T06:10:29Z&se=2027-12-31T14:25:29Z&sv=2026-02-06&sr=b&sig=C8QW5E%2BLVoOF%2BKS4eMVxv8t7p%2B4aUqF8c%2BKXE6aEVhM%3D"
-     class="menu-link no-underline text-[var(--text)] text-[0.95rem] font-semibold flex items-center gap-2.5 px-4 py-3 rounded-lg transition-all duration-200
-            hover:bg-[rgba(37,99,235,0.08)] hover:text-[var(--primary)] hover:translate-x-1 hover:no-underline">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;opacity:0.75;">
-      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
-    </svg>
-    Release document
-  </a>
-  <a href="https://ainavigatorfeedback.blob.core.windows.net/ai-navigator-docs/AI_Navigator_User_Manual_v1.pptx?sp=r&st=2026-07-16T06:12:45Z&se=2027-12-31T14:27:45Z&sv=2026-02-06&sr=b&sig=JMPMZFz9%2FhqEzzP3tRSb7F%2FqR%2B2SMeSE1RGo7HH6%2BpI%3D"
-     class="menu-link no-underline text-[var(--text)] text-[0.95rem] font-semibold flex items-center gap-2.5 px-4 py-3 rounded-lg transition-all duration-200
-            hover:bg-[rgba(37,99,235,0.08)] hover:text-[var(--primary)] hover:translate-x-1 hover:no-underline">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;opacity:0.75;">
-      <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
-    </svg>
-    User manual
-  </a>
-  <a href="#"
-     class="menu-link fb-open-form-trigger no-underline text-[var(--text)] text-[0.95rem] font-semibold flex items-center gap-2.5 px-4 py-3 rounded-lg transition-all duration-200
-            hover:bg-[rgba(37,99,235,0.08)] hover:text-[var(--primary)] hover:translate-x-1 hover:no-underline">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;opacity:0.75;">
-      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-    </svg>
-    Feedback Form
-  </a>
-  <button id="drawerSuggestScenario" type="button"
-          class="menu-link ss-open-trigger bg-transparent border-0 text-left text-[var(--text)] text-[0.95rem] font-semibold flex items-center gap-2.5 px-4 py-3 rounded-lg cursor-pointer transition-all duration-200
-                 hover:bg-[rgba(37,99,235,0.08)] hover:text-[var(--primary)] hover:translate-x-1">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;opacity:0.75;">
-      <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4z"/>
-    </svg>
-    Suggest a scenario
-  </button>
+  <!-- ─── My activity, Help links, Feedback Form and Suggest a scenario
+       intentionally removed from the drawer: they are already available
+       in the header profile menu (My activity, Release document, User
+       manual). Feedback Form + Suggest scenario are surfaced elsewhere. -->
 
   <div id="drawerAdminSection" class="drawer-admin-section">
     <div class="my-3 border-t border-slate-300"></div>
@@ -655,6 +1071,14 @@
         <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
       </svg>
       Scenarios
+    </button>
+    <button id="dropTechIssues"
+            class="menu-link bg-transparent border-0 text-left w-full text-[var(--text)] text-[0.95rem] font-semibold flex items-center gap-2.5 px-4 py-3 rounded-lg cursor-pointer transition-all duration-200
+                   hover:bg-[rgba(37,99,235,0.08)] hover:text-[var(--primary)] hover:translate-x-1">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;opacity:0.75;">
+        <circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M4.93 19.07l1.41-1.41M19.07 19.07l-1.41-1.41M12 2v2M12 20v2M2 12h2M20 12h2"/>
+      </svg>
+      Technical Issues
     </button>
   </div>
 </div>
@@ -935,6 +1359,7 @@
                 placeholder="Type your message"
                 rows="1"
                 autocomplete="off"
+                aria-label="Type your message"
               ></textarea>
               <button class="chat-send-btn" id="chatSendBtn" title="Send">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
@@ -1097,7 +1522,7 @@
               <div class="output-content code-block" id="resultPrompt" style="max-height:none;overflow-y:visible;"></div>
 
               <!-- Edit mode textarea — hidden by default -->
-              <textarea id="promptEditArea" style="display:none;width:100%;min-height:340px;padding:14px;font-family:var(--mono);font-size:12px;line-height:1.5;border:2px solid var(--primary);border-radius:var(--radius-sm);background:var(--bg-white);color:var(--text);resize:vertical;outline:none;box-sizing:border-box;"></textarea>
+              <textarea id="promptEditArea" aria-label="Edit prompt" style="display:none;width:100%;min-height:340px;padding:14px;font-family:var(--mono);font-size:12px;line-height:1.5;border:2px solid var(--primary);border-radius:var(--radius-sm);background:var(--bg-white);color:var(--text);resize:vertical;outline:none;box-sizing:border-box;"></textarea>
 
               <div id="promptEditOk" style="display:none;margin-top:8px;display:none;">
                 <button class="btn btn-primary btn-sm" id="btnPromptOk">&#10003; OK — Apply Changes</button>
@@ -1110,7 +1535,7 @@
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                   Not happy with the prompt? Ask to revise it
                 </div>
-                <textarea class="refinement-input" id="refinementInput" placeholder="e.g. Make it shorter and more formal… or Focus more on risk analysis… or Add a section on budget considerations…"></textarea>
+                <textarea class="refinement-input" id="refinementInput" aria-label="Refinement instructions" placeholder="e.g. Make it shorter and more formal… or Focus more on risk analysis… or Add a section on budget considerations…"></textarea>
                 <div class="refinement-actions">
                   <button class="btn btn-primary btn-sm" id="btnRefine">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
@@ -1215,6 +1640,7 @@
               <input type="search" id="toolsSearch" class="tools-search"
                      placeholder="Search tools…"
                      aria-label="Search tools"
+                     autocomplete="off"
                      style="min-width:260px;">
               <button class="tools-register-btn" id="toolsIntentSearchBtn" type="button"
                       style="background:transparent;color:var(--primary-dark);border:1.5px solid var(--blue-200);">
@@ -1354,7 +1780,7 @@
           </div>
           <p class="upload-title">Drop your policy file here</p>
           <p class="upload-hint">Supports .pdf and .docx files</p>
-          <input type="file" id="policyFileInput" accept=".pdf,.docx" style="display:none"/>
+          <input type="file" id="policyFileInput" accept=".pdf,.docx" aria-label="Upload policy document" tabindex="-1" style="display:none"/>
           <button class="btn btn-secondary btn-sm" id="btnBrowseFile">Browse Files</button>
         </div>
         <div id="uploadStatus" style="margin-top:12px;"></div>
@@ -1424,7 +1850,7 @@
       <div class="as-panel active" data-aspanel="review">
 
         <div class="as-filters">
-          <input class="as-search" type="text" id="asReviewSearch" placeholder="Search by title, group, keyword…" autocomplete="off"/>
+          <input class="as-search" type="text" id="asReviewSearch" placeholder="Search by title, group, keyword…" autocomplete="off" aria-label="Search scenarios for review"/>
         </div>
 
         <div id="asReviewList" class="as-card-list">
@@ -1442,13 +1868,13 @@
       <div class="as-panel" data-aspanel="log" style="display:none;">
 
         <div class="as-filters">
-          <select class="as-select" id="asLogStatus">
+          <select class="as-select" id="asLogStatus" aria-label="Filter scenarios log by status">
             <option value="all">All Statuses</option>
             <option value="pending">Pending</option>
             <option value="approved">Approved</option>
             <option value="rejected">Rejected</option>
           </select>
-          <input class="as-search" type="text" id="asLogSearch" placeholder="Search title, group, keyword…" autocomplete="off"/>
+          <input class="as-search" type="text" id="asLogSearch" placeholder="Search title, group, keyword…" autocomplete="off" aria-label="Search scenarios log"/>
         </div>
 
         <div id="asLogTable" class="as-table-wrap">
@@ -1541,6 +1967,7 @@
               <input type="search" id="slSearch" class="sl-search"
                      placeholder="Search scenarios, roles, prompts…"
                      aria-label="Search scenarios"
+                     autocomplete="off"
                      style="min-width:260px;">
               <button class="sl-upload-btn" id="slIntentSearchBtn" type="button"
                       style="background:transparent;color:var(--primary-dark);border:1.5px solid var(--blue-200);padding:8px 12px;"
@@ -1803,7 +2230,7 @@
       <div class="fu-drop-icon">📄</div>
       <div class="fu-drop-title">Drop your policy document here</div>
       <div class="fu-drop-sub">or click to browse — .pdf or .docx files accepted</div>
-      <input type="file" id="puFileInput" accept=".pdf,.docx" hidden />
+      <input type="file" id="puFileInput" accept=".pdf,.docx" aria-label="Upload policy document" tabindex="-1" hidden />
     </div>
     <div class="fu-file-info" id="puFileInfo" style="display:none">
       <span class="fu-file-name" id="puFileName"></span>
@@ -1928,7 +2355,7 @@
             <div style="font-size:14px;font-weight:600;color:var(--text2);margin-bottom:4px;">Drop your Scenario Library Excel here</div>
             <div style="font-size:12px;color:var(--text3);margin-bottom:14px;">or click to browse — .xlsx files only</div>
             <button class="btn btn-secondary" id="btnBrowseBulkScenarios" type="button" style="font-size:12px;padding:6px 14px;">Browse File</button>
-            <input type="file" id="rsBulkFileInput" accept=".xlsx,.xlsm,.xls" style="display:none"/>
+            <input type="file" id="rsBulkFileInput" accept=".xlsx,.xlsm,.xls" aria-label="Bulk upload scenarios spreadsheet" tabindex="-1" style="display:none"/>
           </div>
 
           <div id="rsBulkFileInfo" style="display:none;align-items:center;gap:10px;padding:10px 14px;border-radius:8px;background:var(--bg-secondary);border:1px solid var(--border);margin-top:12px;">
@@ -2079,8 +2506,8 @@
           </select>
         </div>
         <div>
-          <label class="field-label" for="scenarioTaskType">Task Type</label>
-          <div id="scenarioTaskType" style="width:100%;padding:9px 11px;font-size:13px;color:var(--text);background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-sm);min-height:38px;display:flex;align-items:center;">—</div>
+          <div class="field-label" id="scenarioTaskTypeLabel">Task Type</div>
+          <div id="scenarioTaskType" role="textbox" aria-readonly="true" aria-labelledby="scenarioTaskTypeLabel" style="width:100%;padding:9px 11px;font-size:13px;color:var(--text);background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-sm);min-height:38px;display:flex;align-items:center;">—</div>
         </div>
       </div>
 
@@ -2124,8 +2551,8 @@
         Based on your answers, here is an enriched task description. You can edit it before generating, or use the original.
       </p>
 
-      <label class="field-label">Original Task</label>
-      <div id="enrichedOrigText" style="
+      <div class="field-label" id="enrichedOrigTextLabel">Original Task</div>
+      <div id="enrichedOrigText" role="textbox" aria-readonly="true" aria-labelledby="enrichedOrigTextLabel" style="
         padding:10px 12px;border-radius:var(--radius-sm);
         background:var(--bg-secondary);border:1px solid var(--border);
         font-size:12.5px;color:var(--text2);line-height:1.6;
@@ -2211,19 +2638,19 @@
             </div>
             <div>
               <label class="te-label" for="rtCategory">Category</label>
-              <input class="te-input" type="text" id="rtCategory" placeholder="e.g. Code &amp; Dev, AI Writing"/>
+              <input class="te-input" type="text" id="rtCategory" placeholder="e.g. Code &amp; Dev, AI Writing" autocomplete="off"/>
             </div>
             <div>
               <label class="te-label" for="rtUrl">URL / Access Link</label>
-              <input class="te-input" type="text" id="rtUrl" placeholder="https://…"/>
+              <input class="te-input" type="url" id="rtUrl" placeholder="https://…" autocomplete="url"/>
             </div>
             <div>
               <label class="te-label" for="rtIcon">Icon <span class="te-hint">(emoji)</span></label>
-              <input class="te-input" type="text" id="rtIcon" placeholder="🤖" maxlength="8"/>
+              <input class="te-input" type="text" id="rtIcon" placeholder="🤖" maxlength="8" autocomplete="off"/>
             </div>
             <div>
               <label class="te-label" for="rtOutputType">Output Type</label>
-              <input class="te-input" type="text" id="rtOutputType" placeholder="e.g. code, report, email"/>
+              <input class="te-input" type="text" id="rtOutputType" placeholder="e.g. code, report, email" autocomplete="off"/>
             </div>
           </div>
 
@@ -2253,7 +2680,7 @@
 
           <div class="te-form-full">
             <label class="te-label" for="rtRoles">Target Roles <span class="te-hint">(comma-separated)</span></label>
-            <input class="te-input" type="text" id="rtRoles" placeholder="e.g. Developer, Business Analyst"/>
+            <input class="te-input" type="text" id="rtRoles" placeholder="e.g. Developer, Business Analyst" autocomplete="off"/>
           </div>
 
           <div class="te-checkbox-row">
@@ -2266,40 +2693,40 @@
           <div class="te-form-grid">
             <div>
               <label class="te-label" for="rtToolFamily">Tool Family</label>
-              <input class="te-input" type="text" id="rtToolFamily" data-rd-key="tool_family" placeholder="e.g. Microsoft, Google"/>
+              <input class="te-input" type="text" id="rtToolFamily" data-rd-key="tool_family" placeholder="e.g. Microsoft, Google" autocomplete="off"/>
             </div>
             <div>
               <label class="te-label" for="rtSpecialistLevel">Specialist Level</label>
-              <input class="te-input" type="text" id="rtSpecialistLevel" data-rd-key="specialist_level" placeholder="e.g. Beginner, Advanced"/>
+              <input class="te-input" type="text" id="rtSpecialistLevel" data-rd-key="specialist_level" placeholder="e.g. Beginner, Advanced" autocomplete="off"/>
             </div>
             <div>
               <label class="te-label" for="rtLaunchStatus">Launch Status</label>
-              <input class="te-input" type="text" id="rtLaunchStatus" data-rd-key="launch_status" placeholder="e.g. Live, Beta, Planned"/>
+              <input class="te-input" type="text" id="rtLaunchStatus" data-rd-key="launch_status" placeholder="e.g. Live, Beta, Planned" autocomplete="off"/>
             </div>
             <div>
               <label class="te-label" for="rtSourceTabs">Source Tabs</label>
-              <input class="te-input" type="text" id="rtSourceTabs" data-rd-key="source_tabs" placeholder="e.g. Sheet1, Sheet2"/>
+              <input class="te-input" type="text" id="rtSourceTabs" data-rd-key="source_tabs" placeholder="e.g. Sheet1, Sheet2" autocomplete="off"/>
             </div>
             <div>
               <label class="te-label" for="rtAllowsClientData">Allows Client Data</label>
-              <input class="te-input" type="text" id="rtAllowsClientData" data-rd-key="allows_client_data" placeholder="e.g. Yes, No, Conditional"/>
+              <input class="te-input" type="text" id="rtAllowsClientData" data-rd-key="allows_client_data" placeholder="e.g. Yes, No, Conditional" autocomplete="off"/>
             </div>
             <div>
               <label class="te-label" for="rtRequiresPrompt">Requires Prompt</label>
-              <input class="te-input" type="text" id="rtRequiresPrompt" data-rd-key="requires_prompt" placeholder="e.g. Yes, No"/>
+              <input class="te-input" type="text" id="rtRequiresPrompt" data-rd-key="requires_prompt" placeholder="e.g. Yes, No" autocomplete="off"/>
             </div>
             <div>
               <label class="te-label" for="rtIsPromptRequired">Is Prompt Required</label>
-              <input class="te-input" type="text" id="rtIsPromptRequired" data-rd-key="is_prompt_required" placeholder="e.g. Yes, No"/>
+              <input class="te-input" type="text" id="rtIsPromptRequired" data-rd-key="is_prompt_required" placeholder="e.g. Yes, No" autocomplete="off"/>
             </div>
             <div>
               <label class="te-label" for="rtUrlOrNote">URL or Note</label>
-              <input class="te-input" type="text" id="rtUrlOrNote" data-rd-key="url_or_note" placeholder="Additional URL or access note"/>
+              <input class="te-input" type="text" id="rtUrlOrNote" data-rd-key="url_or_note" placeholder="Additional URL or access note" autocomplete="off"/>
             </div>
           </div>
           <div class="te-form-full">
             <label class="te-label" for="rtPrimaryJob">Primary Job</label>
-            <input class="te-input" type="text" id="rtPrimaryJob" data-rd-key="primary_job" placeholder="e.g. Code generation, Document summarisation"/>
+            <input class="te-input" type="text" id="rtPrimaryJob" data-rd-key="primary_job" placeholder="e.g. Code generation, Document summarisation" autocomplete="off"/>
           </div>
           <div class="te-form-grid">
             <div>
@@ -2349,7 +2776,7 @@
           </div>
           <div id="rtExtractStatus" style="display:none;margin-top:8px;font-size:12px;padding:10px 14px;border-radius:8px;background:var(--bg-secondary);border:1px solid var(--border);"></div>
           <div id="rtFileChips" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;"></div>
-          <input type="file" id="rtFileInput" multiple accept=".pdf,.docx,.pptx,.txt" style="display:none"/>
+          <input type="file" id="rtFileInput" multiple accept=".pdf,.docx,.pptx,.txt" aria-label="Upload tool documentation" tabindex="-1" style="display:none"/>
 
         </div>
       </div>
@@ -2367,7 +2794,7 @@
             <div style="font-size:14px;font-weight:600;color:var(--text2);margin-bottom:4px;">Drop your Excel file here</div>
             <div style="font-size:12px;color:var(--text3);margin-bottom:14px;">or click to browse — .xlsx files only</div>
             <button class="btn btn-secondary" id="btnBrowseBulkTools" type="button" style="font-size:12px;padding:6px 14px;">Browse File</button>
-            <input type="file" id="rtBulkFileInput" accept=".xlsx" style="display:none"/>
+            <input type="file" id="rtBulkFileInput" accept=".xlsx" aria-label="Bulk upload tools spreadsheet" tabindex="-1" style="display:none"/>
           </div>
 
           <div id="rtBulkFileInfo" style="display:none;align-items:center;gap:10px;padding:10px 14px;border-radius:8px;background:var(--bg-secondary);border:1px solid var(--border);margin-top:12px;">
@@ -2476,14 +2903,14 @@
     </div>
     <div id="anDateRangeBox" style="display:none;align-items:center;gap:8px;flex-wrap:wrap;">
       <span class="an-controls-label">From</span>
-      <input type="date" id="anStartDate" class="an-date-input" />
+      <input type="date" id="anStartDate" class="an-date-input" aria-label="Analytics start date" />
       <span class="an-controls-label">To</span>
-      <input type="date" id="anEndDate" class="an-date-input" />
+      <input type="date" id="anEndDate" class="an-date-input" aria-label="Analytics end date" />
       <button class="an-apply-btn" id="anApplyRange">Apply</button>
     </div>
     <div class="an-divider"></div>
     <span class="an-controls-label">Filter by Role</span>
-    <select class="an-role-select" id="anRoleSelect">
+    <select class="an-role-select" id="anRoleSelect" aria-label="Filter analytics by role">
       <option value="all">All Roles</option>
     </select>
     <button class="an-refresh-btn" id="anRefreshBtn">
@@ -2615,14 +3042,14 @@
     </div>
     <div id="fbvDateRangeBox" style="display:none;align-items:center;gap:8px;flex-wrap:wrap;">
       <span class="an-controls-label">From</span>
-      <input type="date" id="fbvStartDate" class="an-date-input" />
+      <input type="date" id="fbvStartDate" class="an-date-input" aria-label="Feedback start date" />
       <span class="an-controls-label">To</span>
-      <input type="date" id="fbvEndDate" class="an-date-input" />
+      <input type="date" id="fbvEndDate" class="an-date-input" aria-label="Feedback end date" />
       <button class="an-apply-btn" id="fbvApplyRange">Apply</button>
     </div>
     <div class="an-divider"></div>
     <span class="an-controls-label">Rating</span>
-    <select class="fbv-rating-filter" id="fbvRatingFilter">
+    <select class="fbv-rating-filter" id="fbvRatingFilter" aria-label="Filter feedback by rating">
       <option value="0">All Ratings</option>
       <option value="5">5 ★ Excellent</option>
       <option value="4">4 ★ Very Good</option>
@@ -2631,7 +3058,7 @@
       <option value="1">1 ★ Poor</option>
     </select>
     <span class="an-controls-label">Search</span>
-    <input class="fbv-search" id="fbvSearch" type="text" placeholder="Search by email or comment…" />
+    <input class="fbv-search" id="fbvSearch" type="text" placeholder="Search by email or comment…" autocomplete="off" aria-label="Search feedback" />
     <!-- Action cluster pinned to the right edge. Wrapping the two buttons
          in one flex container with margin-left:auto keeps them glued
          together — the original .an-refresh-btn rule had margin-left:auto
@@ -2681,7 +3108,7 @@
 
   <div class="tcl-controls">
     <span class="tcl-controls-label">Search tool</span>
-    <input class="tcl-search" id="tclSearch" type="text" placeholder="Filter by tool name…" />
+    <input class="tcl-search" id="tclSearch" type="text" placeholder="Filter by tool name…" autocomplete="off" aria-label="Filter tools changelog" />
     <button class="tcl-refresh-btn" id="tclRefreshBtn">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
       Refresh
@@ -2988,7 +3415,7 @@
             Your role is used to personalise AI recommendations. Set a default so the assistant skips asking every time.
             You can still override it during any chat session.
           </div>
-          <select id="pzDefaultRoleSelect" class="pz-role-select">
+          <select id="pzDefaultRoleSelect" class="pz-role-select" aria-label="Default role">
             <option value="">— No default (ask each time) —</option>
             <option value="Consultant / Manager">Consultant / Manager</option>
             <option value="Executive / Director">Executive / Director</option>
@@ -3000,7 +3427,7 @@
             <option value="Finance / Accounting">Finance / Accounting</option>
             <option value="__custom__">Other — type below…</option>
           </select>
-          <input type="text" id="pzDefaultRoleCustom" class="pz-role-custom-input" placeholder="Enter your role…" maxlength="120" />
+          <input type="text" id="pzDefaultRoleCustom" class="pz-role-custom-input" placeholder="Enter your role…" maxlength="120" autocomplete="off" aria-label="Custom default role" />
         </div>
 
       </div>
@@ -3011,7 +3438,7 @@
 
       <!-- Search + bulk actions -->
       <div class="pz-tools-controls">
-        <input type="search" id="pzToolSearch" placeholder="Search tools…" aria-label="Search tools" />
+        <input type="search" id="pzToolSearch" placeholder="Search tools…" aria-label="Search tools" autocomplete="off" />
         <button class="pz-bulk-btn" id="pzGrantAll"  title="Set all tools to Yes">Grant All</button>
         <button class="pz-bulk-btn" id="pzRevokeAll" title="Set all tools to No">Revoke All</button>
       </div>

@@ -285,6 +285,16 @@
     document.getElementById('railTechIssues')?.addEventListener('click', () => {
       openTechIssuesPage();
     });
+
+    /* Drawer button (mobile hamburger → Admin → Technical Issues).
+       Mirrors the rail handler AND closes the drawer, matching the
+       pattern used by the other admin drawer items (see admin_scenarios.js). */
+    document.getElementById('dropTechIssues')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      document.getElementById('menuDrawer')?.classList.remove('open');
+      document.getElementById('menuDrawerOverlay')?.classList.remove('open');
+      openTechIssuesPage();
+    });
   }
 
   if (document.readyState === 'loading') {

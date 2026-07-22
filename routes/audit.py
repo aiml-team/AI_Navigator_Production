@@ -62,24 +62,20 @@ async def get_user_activity(
     """
     Returns all users (from NavigatorUsers + NavigatorAdmins) joined with
     their run count from audit_log, sorted by run_count DESC then last_seen DESC.
-    Users with zero runs are included with run_count = 0.
     Paginated: default 5 per page with total so frontend can do prev/next.
 
     When start_date / end_date are provided, run_count and last_run are
     computed only over audit_log rows whose created_at falls in that window
-    (so the table reflects activity for the selected analytics period).
+    (so the table reflects activity for the selected analytics period), and
+    users with zero runs in that window are excluded from the results and
+    from the `total`/`pages` count (so the table shows only active users
+    for the selected period).
+
+    When no dates are provided ("All Time"), the original behavior is kept:
+    all users are returned, including those with run_count = 0.
     """
     conn = get_db()
     offset = (page - 1) * per_page
-
-    total_row = conn.execute("""
-        SELECT COUNT(*) AS c FROM (
-            SELECT email FROM NavigatorUsers
-            UNION
-            SELECT email FROM NavigatorAdmins
-        ) AS all_users
-    """).fetchone()
-    total = int(total_row["c"]) if total_row else 0
 
     # ── Build optional date filter for the audit_log subquery ──
     date_conds: list[str] = []
@@ -91,6 +87,42 @@ async def get_user_activity(
         date_conds.append("created_at <= ?")
         date_params.append(end_date.strip() + "T23:59:59")
     date_where = (" AND " + " AND ".join(date_conds)) if date_conds else ""
+
+    # When a period filter is active, hide users with zero runs in that
+    # window (both in the paged rows and in the `total` count so pagination
+    # stays consistent). Without a filter, keep the classic "include 0-run
+    # users" behavior so admins can still see who has never used the system.
+    period_active = bool(date_where)
+    zero_filter_where = "WHERE ISNULL(r.run_count, 0) > 0" if period_active else ""
+
+    if period_active:
+        total_row = conn.execute(f"""
+            SELECT COUNT(*) AS c
+            FROM (
+                SELECT email, name, last_seen, first_seen, 'user' AS role
+                FROM NavigatorUsers
+                UNION ALL
+                SELECT email, name, added_at AS last_seen, added_at AS first_seen, 'admin' AS role
+                FROM NavigatorAdmins
+            ) AS u
+            LEFT JOIN (
+                SELECT LOWER(user_email) AS email,
+                       COUNT(*) AS run_count
+                FROM audit_log
+                WHERE user_email IS NOT NULL AND user_email != ''{date_where}
+                GROUP BY LOWER(user_email)
+            ) AS r ON LOWER(u.email) = r.email
+            WHERE ISNULL(r.run_count, 0) > 0
+        """, date_params).fetchone()
+    else:
+        total_row = conn.execute("""
+            SELECT COUNT(*) AS c FROM (
+                SELECT email FROM NavigatorUsers
+                UNION
+                SELECT email FROM NavigatorAdmins
+            ) AS all_users
+        """).fetchone()
+    total = int(total_row["c"]) if total_row else 0
 
     rows = conn.execute(f"""
         SELECT
@@ -116,6 +148,7 @@ async def get_user_activity(
             WHERE user_email IS NOT NULL AND user_email != ''{date_where}
             GROUP BY LOWER(user_email)
         ) AS r ON LOWER(u.email) = r.email
+        {zero_filter_where}
         ORDER BY run_count DESC, u.last_seen DESC
         OFFSET {int(offset)} ROWS FETCH NEXT {int(per_page)} ROWS ONLY
     """, date_params).fetchall()

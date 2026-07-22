@@ -151,7 +151,7 @@ function getLoggedInEmail() {
 
     formBody.innerHTML = `
       <div class="fb-field">
-        <label>Feedback Scope</label>
+        <label id="fbScopeLabel">Feedback Scope</label>
         ${scopeToggleHtml}
         <div id="fbTaskSourceChipRow" class="fb-scope-slot" style="visibility:${chipRowVisible ? 'visible' : 'hidden'};">
           <span class="fb-scope-slot-label">Task origin:</span>
@@ -164,37 +164,37 @@ function getLoggedInEmail() {
       </div>
 
       <div class="fb-field">
-        <label>Email Address</label>
-        <input type="email" id="fbEmail" value="${escFb(getLoggedInEmail())}" readonly/>
+        <label for="fbEmail">Email Address</label>
+        <input type="email" id="fbEmail" name="email" value="${escFb(getLoggedInEmail())}" readonly autocomplete="email" aria-label="Your email address"/>
       </div>
 
       <div class="fb-field">
-        <label>Rating <span style="color:#ef4444">*</span></label>
-        <div class="fb-stars-row" id="fbStarsRow">
-          ${[1,2,3,4,5].map(n => `<span class="fb-star${n <= selectedRating ? ' active' : ''}" data-val="${n}" role="button" aria-label="${n} star">★</span>`).join('')}
+        <label id="fbRatingLabel">Rating <span style="color:#ef4444" aria-hidden="true">*</span><span class="sr-only"> (required)</span></label>
+        <div class="fb-stars-row" id="fbStarsRow" role="radiogroup" aria-labelledby="fbRatingLabel" aria-required="true">
+          ${[1,2,3,4,5].map(n => `<span class="fb-star${n <= selectedRating ? ' active' : ''}" data-val="${n}" role="radio" tabindex="0" aria-checked="${n === selectedRating ? 'true' : 'false'}" aria-label="${n} star${n !== 1 ? 's' : ''}">★</span>`).join('')}
           <span class="fb-star-label" id="fbStarLabel" style="${selectedRating ? 'color:#f59e0b;' : ''}">${selectedRating ? STAR_LABELS[selectedRating] : 'Select a rating'}</span>
         </div>
       </div>
 
       <div class="fb-field">
-        <label>Feedback Type</label>
-        <div class="fb-issue-pills" id="fbIssuePills">
-          ${ISSUE_TYPES.map(t => `<button class="fb-pill${selectedIssues.includes(t) ? ' selected' : ''}" data-issue="${escFb(t)}">${escFb(t)}</button>`).join('')}
+        <label id="fbIssueTypeLabel">Feedback Type</label>
+        <div class="fb-issue-pills" id="fbIssuePills" role="group" aria-labelledby="fbIssueTypeLabel">
+          ${ISSUE_TYPES.map(t => `<button type="button" class="fb-pill${selectedIssues.includes(t) ? ' selected' : ''}" data-issue="${escFb(t)}" aria-pressed="${selectedIssues.includes(t) ? 'true' : 'false'}">${escFb(t)}</button>`).join('')}
         </div>
       </div>
 
       <div class="fb-field">
-        <label>Comments</label>
-        <textarea id="fbComment" placeholder="Tell us what you think — any detail helps…" maxlength="1000">${escFb(existingComment)}</textarea>
+        <label for="fbComment">Comments</label>
+        <textarea id="fbComment" name="comment" placeholder="Tell us what you think — any detail helps…" maxlength="1000" autocomplete="off" aria-label="Your comments">${escFb(existingComment)}</textarea>
       </div>
 
       <div class="fb-field">
-        <label>Attachments <span style="color:#64748b;font-weight:400;font-size:11px;">(screenshots, logs, any files)</span></label>
-        <div class="fb-dropzone" id="fbDropzone">
-          <div class="fb-dropzone-icon">📎</div>
+        <label for="fbFileInput">Attachments <span style="color:#64748b;font-weight:400;font-size:11px;">(screenshots, logs, any files)</span></label>
+        <div class="fb-dropzone" id="fbDropzone" role="button" tabindex="0" aria-label="Click or drop files to attach screenshots, logs or any files">
+          <div class="fb-dropzone-icon" aria-hidden="true">📎</div>
           <div class="fb-dropzone-text">Drop files here or <span class="fb-dropzone-browse">browse</span></div>
           <div class="fb-dropzone-hint">Multiple files supported · PNG, JPG, PDF, DOCX, TXT, ZIP…</div>
-          <input type="file" id="fbFileInput" multiple accept="image/*,.pdf,.doc,.docx,.txt,.log,.zip,.xlsx,.csv" style="display:none"/>
+          <input type="file" id="fbFileInput" name="attachments" multiple accept="image/*,.pdf,.doc,.docx,.txt,.log,.zip,.xlsx,.csv" aria-label="Attach files" tabindex="-1" style="display:none"/>
         </div>
         <div class="fb-file-preview" id="fbFilePreview"></div>
       </div>
@@ -253,15 +253,35 @@ function getLoggedInEmail() {
     /* Stars */
     const stars = formBody.querySelectorAll('.fb-star');
     const label = formBody.querySelector('#fbStarLabel');
+    function _pickStar(star) {
+      selectedRating = +star.dataset.val;
+      highlightStars(stars, selectedRating);
+      label.textContent = STAR_LABELS[selectedRating];
+      label.style.color = '#f59e0b';
+      // Keep aria-checked in sync so screen readers reflect the current rating.
+      stars.forEach(s => s.setAttribute('aria-checked', +s.dataset.val === selectedRating ? 'true' : 'false'));
+      updateSubmitBtn();
+    }
     stars.forEach(star => {
       star.addEventListener('mouseenter', () => highlightStars(stars, +star.dataset.val));
       star.addEventListener('mouseleave', () => highlightStars(stars, selectedRating));
-      star.addEventListener('click', () => {
-        selectedRating = +star.dataset.val;
-        highlightStars(stars, selectedRating);
-        label.textContent = STAR_LABELS[selectedRating];
-        label.style.color = '#f59e0b';
-        updateSubmitBtn();
+      star.addEventListener('click', () => _pickStar(star));
+      /* Keyboard support: Enter/Space selects, Arrow keys move within the radiogroup. */
+      star.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+          e.preventDefault();
+          _pickStar(star);
+        } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+          e.preventDefault();
+          const next = star.nextElementSibling && star.nextElementSibling.classList.contains('fb-star') ? star.nextElementSibling : stars[0];
+          next.focus();
+          _pickStar(next);
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+          e.preventDefault();
+          const prev = star.previousElementSibling && star.previousElementSibling.classList.contains('fb-star') ? star.previousElementSibling : stars[stars.length - 1];
+          prev.focus();
+          _pickStar(prev);
+        }
       });
     });
 
@@ -273,9 +293,11 @@ function getLoggedInEmail() {
         if (idx === -1) {
           selectedIssues.push(val);
           pill.classList.add('selected');
+          pill.setAttribute('aria-pressed', 'true');
         } else {
           selectedIssues.splice(idx, 1);
           pill.classList.remove('selected');
+          pill.setAttribute('aria-pressed', 'false');
         }
       });
     });
@@ -287,6 +309,15 @@ function getLoggedInEmail() {
     dropzone.addEventListener('click', e => {
       if (e.target === fileInput) return;
       fileInput.click();
+    });
+
+    /* Keyboard support: Enter / Space opens the file picker
+       (paired with role="button" tabindex="0" on the dropzone). */
+    dropzone.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+        e.preventDefault();
+        fileInput.click();
+      }
     });
 
     dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('drag-over'); });
@@ -694,20 +725,20 @@ function getLoggedInEmail() {
 
     rfBody.innerHTML = `
       <div class="fb-field">
-        <label>Feedback Type</label>
-        <div class="fb-issue-pills" id="rfIssuePills">
-          ${ISSUE_TYPES.map(t => `<button class="fb-pill${rfSelectedIssues.includes(t) ? ' selected' : ''}" data-issue="${escFb(t)}">${escFb(t)}</button>`).join('')}
+        <label id="rfIssueTypeLabel">Feedback Type</label>
+        <div class="fb-issue-pills" id="rfIssuePills" role="group" aria-labelledby="rfIssueTypeLabel">
+          ${ISSUE_TYPES.map(t => `<button type="button" class="fb-pill${rfSelectedIssues.includes(t) ? ' selected' : ''}" data-issue="${escFb(t)}" aria-pressed="${rfSelectedIssues.includes(t) ? 'true' : 'false'}">${escFb(t)}</button>`).join('')}
         </div>
       </div>
 
       <div class="fb-field">
-        <label>Comments</label>
-        <textarea id="rfComment" placeholder="Tell us about this specific response…" maxlength="1000">${escFb(existingComment)}</textarea>
+        <label for="rfComment">Comments</label>
+        <textarea id="rfComment" name="comment" placeholder="Tell us about this specific response…" maxlength="1000" autocomplete="off" aria-label="Your comments about this response">${escFb(existingComment)}</textarea>
       </div>
 
       <div class="fb-submit-row">
-        <button class="fb-btn-cancel" id="rfCancelBtn">Cancel</button>
-        <button class="fb-btn-submit" id="rfSubmitBtn">${isEdit ? 'Update Feedback' : 'Submit Feedback'}</button>
+        <button type="button" class="fb-btn-cancel" id="rfCancelBtn">Cancel</button>
+        <button type="button" class="fb-btn-submit" id="rfSubmitBtn">${isEdit ? 'Update Feedback' : 'Submit Feedback'}</button>
       </div>
     `;
 
@@ -718,9 +749,11 @@ function getLoggedInEmail() {
         if (idx === -1) {
           rfSelectedIssues.push(val);
           pill.classList.add('selected');
+          pill.setAttribute('aria-pressed', 'true');
         } else {
           rfSelectedIssues.splice(idx, 1);
           pill.classList.remove('selected');
+          pill.setAttribute('aria-pressed', 'false');
         }
       });
     });
